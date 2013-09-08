@@ -4,15 +4,17 @@
 
 %% Initialize and load
 path = '..\test video\';
-mov1path = strcat(path, '2013-09-08 15.06.17.mov')
-mov2path = strcat(path, '2013-09-08 15.07.16.mov')
+mov1path = strcat(path, '2013-09-08 15.06.17.mov');
+mov2path = strcat(path, '2013-09-08 15.07.16.mov');
 
 mov1obj = VideoReader( mov1path );
-mov2obj = VideoReader( mov2path );
+% mov2obj = VideoReader( mov2path );
 
+%% Read frames
+frame1 = read(mov1obj, 1);
+frame2 = read(mov1obj, 2);
 
-
-
+imshow(frame1);
 
 % %% Set-up to view movie
 % nFrames = xyloObj.NumberOfFrames;
