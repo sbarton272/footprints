@@ -6,9 +6,14 @@ clear('all');
 close('all');
 
 %% Initialize and load
-filepath = '..\..\Footprints Files\test video\';
-%mov1path = strcat(path, '2013-09-08 15.06.17.mov');
-mov1path = strcat(filepath, '2013-09-08 15.07.16.mov');
+movFilepath = '..\..\Footprints Files\test video\';
+imgFilepath = '..\..\Footprints Files\test images\';
+%mov1path = strcat(movFilepath, '2013-09-08 15.06.17.mov');
+mov1path = strcat(movFilepath, '2013-09-08 15.07.16.mov');
+
+img1path = strcat(imgFilepath, 'firstFrame.png');
+img2path = strcat(imgFilepath, 'basicDiff.png');
+img3path = strcat(imgFilepath, 'fullDiff.png');
 
 mov1obj = VideoReader( mov1path );
 
@@ -44,6 +49,25 @@ end
 figure(3);
 totalDiff = imresize( totalDiff, .5);
 imshow(totalDiff);
+
+%% filtering the image (blur)
+G = fspecial('disk',50);
+filteredDiff = imfilter(totalDiff, G, 'replicate');
+
+%% display
+figure(4);
+imshow(filteredDiff);
+
+%% try grey scale color change
+greyDiff = rgb2gray(totalDiff);
+% display
+figure(5);
+imshow(greyDiff); colormap(jet);
+
+%% save images
+% imwrite(img, img1path);
+% imwrite(imdiff, img2path);
+% imwrite(totalDiff, img3path);
 
 % %% Set-up to view movie
 % nFrames = xyloObj.NumberOfFrames;
