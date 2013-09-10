@@ -19,6 +19,10 @@ void setup() {
   video = new Capture(this, WIDTH, HEIGHT);
   video.start(); 
   
+  String[] cams = Capture.list();
+  println("Showing cameras:");
+  println( cams );
+  
   loadPixels();
 }
 
