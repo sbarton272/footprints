@@ -51,7 +51,7 @@ void draw() {
       int diffB = abs(currB - prevB);
 
       if (diffR > THRESHOLD && diffG > THRESHOLD && diffB > THRESHOLD) {
-        activityMap[i] = activityMap[i] + 10; 
+        activityMap[i] = activityMap[i] + 100; 
       }
 
       float paintColor = ((10000.0 - activityMap[i])/10000.0); 

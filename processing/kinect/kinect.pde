@@ -15,26 +15,19 @@ PImage img;
 PImage heatMap;
 float MAX_ACTIVITY = 10000.0;
 
+
 boolean saveImage = false;
 
 
 void setup() {
-  size(WIDTH*2, HEIGHT);
+  size(WIDTH, HEIGHT);
   
   kinect = new Kinect(this);
   kinect.start();
   kinect.enableRGB(true);
   
-  delay(1000);
-  
-  heatMap = new PImage(WIDTH, HEIGHT);
   img = new PImage(WIDTH, HEIGHT);
-  
   img = kinect.getVideoImage();
-  
-  for (int i = 0; i < numPixels; i++) {
-    heatMap.pixels[i] = img.pixels[i];
-  }
   
   previousFrame = new int[numPixels];
 }
@@ -47,8 +40,10 @@ void setup() {
 
 void draw() {
   img = kinect.getVideoImage();
-  
-    
+  heatMap = createImage(WIDTH, HEIGHT, RGB);
+   
+  int maxActivity = 10000;  
+   
   for (int i = 0; i < numPixels; i++) {
     color prevColor = previousFrame[i];
     color currColor = img.pixels[i];
@@ -66,35 +61,53 @@ void draw() {
     int diffB = abs(currB - prevB);
 
     int totalDiff = (diffR + diffG + diffB)/3;
-    if ((diffR + diffG + diffB)/3 > THRESHOLD) {
-      if (activityMap[i] < MAX_ACTIVITY) {
+    if (totalDiff > THRESHOLD) {
         activityMap[i] = activityMap[i] + totalDiff;
-      } 
     }
-
-    float paintColor = ((MAX_ACTIVITY - activityMap[i])/MAX_ACTIVITY); 
-
-    if (i == 40) {
-      println("TotalDiff: " + totalDiff);
-      println("activityMap[i]: " + activityMap[i]);
-      println("currRed: " + currR);
-      println("red: " + float(currR)*paintColor);
-      println("--------------------------");
-    }
-
-    // This is how you manually change the current frame's pixels
-    heatMap.pixels[i] = color(float(currR)*paintColor, float(currG)*paintColor, float(currB)*paintColor);
+    
+    //if (activityMap[i] > maxActivity) {
+    //  maxActivity = activityMap[i]; 
+   // }
 
     previousFrame[i] = currColor;
   }
   
-  image(img,0,0);
-  image(heatMap,WIDTH,0);
   
-  if (saveImage == true) {
+  // Go through and update the heatmap with normalized values
+  for (int i = 0; i < numPixels; i++) {
+    float colorRatio = (float(maxActivity) - float(activityMap[i]))/float(maxActivity);
+    float red = red(img.pixels[i]);
+    float green = green(img.pixels[i]);
+    float blue = blue(img.pixels[i]);
+    
+    float additionalRed = 256 - red;
+    float additionalBlue = 256 - blue;
+    float redRatio = 0.0;
+    float blueRatio = 0.0;
+    
+    if (i == 1000) {
+      println(maxActivity); 
+    }
+    
+    if (colorRatio < 0.5) {
+      redRatio = 1 - (2 * colorRatio);
+      blueRatio = 2 * colorRatio;
+    } else {
+      redRatio = 0;
+      blueRatio = 1 - (2 * (colorRatio - 0.5));
+    }
+    
+    heatMap.pixels[i] = color(colorRatio*red + redRatio * additionalRed, colorRatio*green, colorRatio*blue + blueRatio * additionalBlue);
+    //heatMap.pixels[i] = color(red, colorRatio*green, colorRatio*blue + blueRatio * additionalBlue);
+  }
+  
+  image(heatMap,0,0);
+  
+  if ((frameCount % 1000) == 0) {
     heatMap.save("footprints"+millis()+".jpg");
     saveImage = false;
   }
+  
 }
 
 
